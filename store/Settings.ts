@@ -1,29 +1,21 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { atom } from "recoil";
 
-type State = {
-  majorBorderWidth: number;
-  majorBorderColor: string;
-  minorBorderWidth: number;
-  minorBorderColor: string;
-};
-
-const initialState: State = {
-  majorBorderWidth: 3,
-  majorBorderColor: '#344861',
-  minorBorderWidth: 1,
-  minorBorderColor: '#BFC6D4',
-};
-
-const slice = createSlice({
-  name: 'settings',
-  initialState,
-  reducers: {
-    update: (state, action: PayloadAction<State>) => {
-      state = action.payload;
-    }
-  },
+export const majorBorderWidthState = atom({
+  key: 'majorBorderWidthState',
+  default: 3,
 });
 
-export const {} = slice.actions;
+export const minorBorderWidthState = atom({
+  key: 'minorBorderWidthState',
+  default: 1,
+});
 
-export default slice.reducer;
+export const majorBorderColorState = atom({
+  key: 'majorBorderColorState',
+  default: '#344861',
+});
+
+export const minorBorderColorState = atom({
+  key: 'minorBorderColorState',
+  default: '#BFC6D4',
+});

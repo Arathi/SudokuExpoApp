@@ -1,40 +1,57 @@
-import { PayloadAction, createSlice, configureStore } from "@reduxjs/toolkit";
-import { Dimensions, ScaledSize } from "react-native";
-import { RootState, AppDispatch } from '../app/store';
+import { Dimensions } from "react-native";
+import { atom, selector } from "recoil";
 
-type State = {
-  window: ScaledSize;
-  screen: ScaledSize;
-}
-
-const initialState = {
-  window: Dimensions.get('window'),
-  screen: Dimensions.get('screen'),
-};
-
-const slice = createSlice({
-  name: 'dimensions',
-  initialState,
-  reducers: {
-    updateAll: (state, action: PayloadAction<State>) => {
-      state.window = action.payload.window;
-      state.screen = action.payload.screen;
-    },
-    updateWindowSize: (state, action: PayloadAction<ScaledSize>) => {
-      state.window = action.payload;
-    },
-    updateScreenSize: (state, action: PayloadAction<ScaledSize>) => {
-      state.screen = action.payload;
-    },
-  },
+export const windowSizeState = atom({
+  key: 'windowSizeState',
+  default: Dimensions.get('window'),
 });
 
-export const {
-  updateAll,
-  updateWindowSize,
-  updateScreenSize,
-} = slice.actions;
+export const screenSizeState = atom({
+  key: 'screenSizeState',
+  default: Dimensions.get('screen'),
+});
 
-export const selectWindowSize = (state: RootState) => state.dimensions.window;
-export const selectScreenSize = (state: RootState) => state.dimensions.screen;
-export default slice.reducer;
+export const windowWidthGetter = selector({
+  key: 'windowWidthGetter',
+  get: ({get}) => {
+    const size = get(windowSizeState);
+    return size.width;
+  }
+});
+
+export const windowHeightGetter = selector({
+  key: 'windowHeightGetter',
+  get: ({get}) => {
+    const size = get(windowSizeState);
+    return size.height;
+  }
+});
+
+export const windowScaleGetter = selector({
+  key: 'windowScaleGetter',
+  get: ({get}) => {
+    const size = get(windowSizeState);
+    return size.scale;
+  }
+});
+
+export enum Orientation {
+  Landscape = 'landscape',
+  Portrait = 'portrait',
+}
+
+export const windowOrientationGetter = selector({
+  key: 'windowOrientationGetter',
+  get: ({get}) => {
+    const {width, height} = get(windowSizeState);
+    return (width > height) ? Orientation.Landscape : Orientation.Portrait;
+  }
+});
+
+export const windowShortSideGetter = selector({
+  key: 'windowShortSideGetter',
+  get: ({get}) => {
+    const {width, height} = get(windowSizeState);
+    return (width > height) ? height : width;
+  }
+});

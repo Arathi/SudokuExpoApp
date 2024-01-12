@@ -1,63 +1,43 @@
-import { PayloadAction, createSlice } from '@reduxjs/toolkit';
+import { atom, selector } from "recoil";
 
-type State = {
-  x: number;
-  y: number;
-  values: number[];
-  notes: number[];
-  elapsed: number;
-};
-
-enum ActionType {
-  Select,
-  SetValue,
-  ToggleNote,
-}
-
-type CellAction = {
-  type: ActionType;
+type CellData = {
   x: number;
   y: number;
   value: number;
+  notes: number;
 };
 
-const initialState: State = {
-  x: 0,
-  y: 0,
-  values: [],
-  notes: [],
-  elapsed: 0,
-};
-
-const slice = createSlice({
-  name: 'puzzle',
-  initialState,
-  reducers: {
-    reset: (state, action: PayloadAction<string>) => {
-      const values: number[] = [];
-      const puzzle = action.payload;
-      for (let index = 0; index < 81; index++) {
-        let value = 0;
-        if (puzzle.length > index) {
-          value = Number(puzzle.charAt(index));
-        }
-        values.push(value);
-      }
-      state.values = values;
-      state.notes = [];
-      state.elapsed = 0;
-    },
-    selectCell: (state, action: PayloadAction<CellAction>) => {
-      //
-    },
-    updateCell: (state, action: PayloadAction<CellAction>) => {
-      //
-    }
-  }
+const cellDatasState = atom({
+  key: 'cellDatasState',
+  default: [] as CellData[],
 });
 
-export const {
-  reset,
-} = slice.actions;
+const selectedCoordinateState = atom({
+  key: 'selectedCoordinateState',
+  default: {
+    x: 0,
+    y: 0,
+  },
+});
 
-export default slice.reducer;
+const selectedCellDataGetter = selector({
+  key: 'selectCell',
+  get: ({get}) => {
+    const {x, y} = get(selectedCoordinateState);
+    const index = x + 9*y;
+    const cellDatas = get(cellDatasState);
+    let cellData: CellData;
+    if (cellDatas.length > index) {
+      cellData = cellDatas[index];
+    }
+    else {
+      cellData = {
+        x,
+        y,
+        value: 0,
+        notes: 0,
+      } as CellData;
+    }
+    return cellData;
+  },
+});

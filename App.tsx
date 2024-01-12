@@ -1,71 +1,47 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, View, Dimensions, Text, StyleProp, ViewStyle, Button } from 'react-native';
-import Sudoku from './components/Sudoku';
-import Numpad from './components/Numpad';
-import { selectWindowSize, selectScreenSize, updateWindowSize, updateScreenSize } from './store/Dimensions';
-import { useAppDispatch, useAppSelector } from './app/hooks';
 import { useEffect } from 'react';
-import { store } from './app/store';
-import { Provider } from 'react-redux';
+import { StyleSheet, View, Dimensions } from 'react-native';
+import { StatusBar } from 'expo-status-bar';
+import { RecoilRoot, useRecoilState, useRecoilValue } from 'recoil';
+import { windowSizeState, screenSizeState, windowOrientationGetter, Orientation } from './store/Dimensions';
+import Landscape from './layouts/Landscape';
+import Portrait from './layouts/Portrait';
 
 const styles = StyleSheet.create({
-  app: {},
-  container: {
-    flex: 3,
+  app: {
+    flex: 1,
     backgroundColor: '#ffffff',
     alignItems: 'center',
     justifyContent: 'center',
   },
-  dimensions: {
-    color: 'red',
-  }
 });
-
-enum Orientation {
-  Landscape = 'Landscape',
-  Portrait = 'Portrait',
-}
 
 export default function App() {
   return (
-    <Provider store={store}>
+    <RecoilRoot>
       <SudokuApp />
-    </Provider>
+    </RecoilRoot>
   );
 }
 
 function SudokuApp() {
-  const windowSize = useAppSelector(selectWindowSize);
-  const screenSize = useAppSelector(selectScreenSize);
-  const dispatch = useAppDispatch();
+  const [windowSize, setWindowSize] = useRecoilState(windowSizeState);
+  const [screenSize, setScreenSize] = useRecoilState(screenSizeState);
+  const orientation = useRecoilValue(windowOrientationGetter);
   
   useEffect(() => {
     const subscription = Dimensions.addEventListener('change', ({window, screen}) => {
-      const lastWindowSize = `${windowSize.width}x${windowSize.height}@x${windowSize.scale}`;
-      const lastScreenSize = `${screenSize.width}x${screenSize.height}@x${windowSize.scale}`;
-      const changedWindowSize = `${window.width}x${window.height}@x${window.scale}`;
-      const changedScreenSize = `${screen.width}x${screen.height}@x${screen.scale}`;
-      console.info('尺寸发生变化');
-      console.info(`窗口：${lastWindowSize} -> ${changedWindowSize}`);
-      console.info(`屏幕：${lastScreenSize} -> ${changedScreenSize}`);
-      dispatch(updateWindowSize(window));
-      dispatch(updateScreenSize(screen));
+      setWindowSize(window);
+      setScreenSize(screen);
     });
     return () => subscription?.remove();
   });
 
   console.info(`窗口大小：${windowSize.width}x${windowSize.height}@x${windowSize.scale}`);
-  let orientation: Orientation = Orientation.Portrait;
-  let shortSide = windowSize.width;
-  if (windowSize.width > windowSize.height) {
-    orientation = Orientation.Landscape;
-    shortSide = windowSize.height;
-  }
   console.info(`屏幕方向：${orientation}`);
 
   const layout = (orientation == Orientation.Landscape) ? 
-    <LandscapeLayout width={windowSize.width} height={windowSize.height} /> : 
-    <PortraitLayout width={windowSize.width} height={windowSize.height} />
+    <Landscape/> : 
+    <Portrait/>
   ;
 
   return (
@@ -76,6 +52,7 @@ function SudokuApp() {
   );
 }
 
+/*
 type LayoutProps = {
   width: number;
   height: number;
@@ -170,3 +147,4 @@ function PortraitLayout({
     </View>
   );
 }
+*/

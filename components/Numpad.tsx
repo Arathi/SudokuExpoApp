@@ -1,4 +1,4 @@
-import { Pressable, StyleSheet, View, Text } from 'react-native';
+import { Pressable, StyleSheet, View, Text, StyleProp, ViewStyle } from 'react-native';
 
 const styles = StyleSheet.create({
   numpad: {
@@ -39,11 +39,14 @@ function Key({value}: KeyProps) {
   );
 }
 
-type NumpadProps = {};
+type NumpadProps = {
+  style?: StyleProp<ViewStyle>,
+};
 export default function Numpad({
+  style = {},
 }: NumpadProps) {
   return (
-    <View style={styles.numpad}>
+    <View style={[styles.numpad, style]}>
       <View style={styles.row}>
         <Key value={1} />
         <Key value={2} />
